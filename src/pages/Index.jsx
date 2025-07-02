@@ -91,6 +91,10 @@ const Index = () => {
                   return;
                 }
                 setCurrentTeamId(e.target.value);
+                setInputs({
+                  ...inputs,
+                  name: `Team ${e.target.options[e.target.selectedIndex].text}`
+                });
                 fetchGrades(e.target.value);
               }}
               className="block w-64 px-4 mx-4 py-2 text-sm text-gray-100 bg-gray-800 border border-gray-600 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"

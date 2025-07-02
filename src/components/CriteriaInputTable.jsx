@@ -31,7 +31,7 @@ const CriteriaInputTable = ({inputs, setInputs}) => {
                 value={inputs.design}
                 onChange={handleChange}
                 className="w-full px-2 py-1 bg-gray-700 text-gray-100 border border-gray-600 rounded"
-                placeholder="Score or comment"
+                placeholder="Score"
               />
             </td>
             <td className="px-4 py-2 border border-gray-700">
@@ -41,7 +41,7 @@ const CriteriaInputTable = ({inputs, setInputs}) => {
                 value={inputs.usability}
                 onChange={handleChange}
                 className="w-full px-2 py-1 bg-gray-700 text-gray-100 border border-gray-600 rounded"
-                placeholder="Score or comment"
+                placeholder="Score"
               />
             </td>
             <td className="px-4 py-2 border border-gray-700">
@@ -51,7 +51,7 @@ const CriteriaInputTable = ({inputs, setInputs}) => {
                 value={inputs.functionality}
                 onChange={handleChange}
                 className="w-full px-2 py-1 bg-gray-700 text-gray-100 border border-gray-600 rounded"
-                placeholder="Score or comment"
+                placeholder="Score"
               />
             </td>
             <td className="px-4 py-2 border border-gray-700">
@@ -61,7 +61,7 @@ const CriteriaInputTable = ({inputs, setInputs}) => {
                 value={inputs.installation}
                 onChange={handleChange}
                 className="w-full px-2 py-1 bg-gray-700 text-gray-100 border border-gray-600 rounded"
-                placeholder="Score or comment"
+                placeholder="Score"
               />
             </td>
           </tr>

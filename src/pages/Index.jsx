@@ -1,15 +1,10 @@
 import { useNavigate } from "react-router-dom";
-
 import { useState, useEffect, useRef } from 'react'
 
-/*
-import ConfirmationModal from "../components/ConfirmationModal";
-import ErrorDialogModal from "../components/ErrorDialogModal";
-import LoadingModal from "../components/LoadingModal";
-import DialogModal from "../components/DialogModal";
-*/
 import Button from '../components/Button.jsx';
-import ProjectsTable from "../components/ProjectsTable";
+import ErrorDialogModal from "../components/ErrorDialogModal";
+
+import { sha256 } from 'js-sha256';
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -17,63 +12,102 @@ const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env
 
 const Index = () => {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState([]);
-  const [grades, setGrades] = useState({});
-  const [currentTeamId, setCurrentTeamId] = useState(null);
-  const categoryId = 2;
+  const [errorLog, setErrorLog] = useState(null);
+  const [formData, setFormData] = useState({"username": "", "password": ""})
 
-  const fetchProjects = async (teamId) => {
-      const { data, error } = await supabase
-        .from('Projects')
-        .select("*")
-        .eq("category", 2)
-      console.log("Projects data:")
-      console.log(data)
-      setProjects(data)
+  const changeForm = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value
+    });
   }
 
-  useEffect(() => {
-    fetchProjects();
-  }, []);
-
-  /*
-  const recordGrade = async (e) => {
-    e.preventDefault();
-    console.log(inputs);
-
-    console.log("Recording grades...");
-
-    const { error } = await supabase
-      .from('Grading')
-      .insert({ team_id: 1, project_type: "Mobile App",
-                grade: {
-                  design: +inputs.design,
-                  usability: +inputs.usability,
-                  functionality: +inputs.functionality,
-                  installation: +inputs.installation,
-                }
-              });
-
-    if (error) {
-      console.log(error["code"] + " - " + error["message"]);
-    } else {
-      console.log("Grading successful!");
+  const submitForm = async () => {
+    if (formData.username.length == 0) {
+      setErrorLog("Empty username!");
+      return
     }
+    if (formData.password.length == 0) {
+      setErrorLog("Empty password!");
+      return
+    }
+
+    await fetchUser();
   }
-  */
+
+  const fetchUser = async () => {
+    const { data, error } = await supabase
+      .from('Credentials')
+      .select("*")
+      .eq("username", formData.username)
+    if (error) {
+      setErrorLog(error["code"] + " - " + error["message"]);
+      return
+    }
+    if (data.length == 0) {
+      setErrorLog("Invalid credentials!");
+      return
+    }
+
+    const inputPasswordHash = sha256(`${formData.password}-${data[0].salt}`)
+
+    if (inputPasswordHash != data[0].password_hash) {
+      setErrorLog("Invalid credentials!");
+      return
+    }
+    console.log("Credentials are valid!")
+    if (formData.username == "admin") {
+      console.log("Special access!")
+    }
+
+    navigate('/grading', {
+      state: {
+        sessionId: data[0].session_id,
+        userId: data[0].id,
+        fullName: data[0].full_name,
+      }
+    })
+  }
 
   return (
     <>
-      <div className="flex flex-col min-h-screen bg-gray-900 w-min">
-        <div className="p-8 justify-items-center w-screen">
-          <Button type="button" onClick={() => navigate("/score_view")}>View All Scores</Button>
+      <div className="flex flex-col min-h-screen bg-gray-900 w-screen">
+        <div className="flex flex-row justify-center pt-16 pb-8">
+          <h2 className="text-blue-300 text-4xl">Login</h2>
         </div>
         <div className="m-auto">
-          <div className="flex flex-row justify-center">
-            <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} />
+            <label className="block text-sm font-medium text-gray-100">Username</label>
+            <input
+              type='text'
+              name='username'
+              className="mt-1 block w-full p-2 border border-gray-300 bg-white rounded-md"
+              value={formData["username"]}
+              onChange={changeForm}
+              required
+            />
+            <label className="block text-sm font-medium text-gray-100 pt-4">Passphrase</label>
+            <input
+              type='password'
+              name='password'
+              className="mt-1 block w-full p-2 border border-gray-300 bg-white rounded-md"
+              value={formData["password"]}
+              onChange={changeForm}
+              required
+            />
+          <div className="flex flex-row justify-center pt-8">
+            <Button type="button" onClick={submitForm}>Submit</Button>
           </div>
         </div>
       </div>
+      {errorLog != null && (
+          <ErrorDialogModal
+              buttonText='Ok'
+              message='An error occured. Please check the error message below.' 
+              errorLog={errorLog}
+              onClick={() => setErrorLog(null) }
+          />
+      )}
     </>
   )
 }

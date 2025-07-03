@@ -2,6 +2,10 @@ import EditableCell from "../components/EditableCell";
 
 const ProjectsTable = ({ projects, grades, setGrades }) => {
   const handleCellSave = (id, field, newValue) => {
+    if (isNaN(Number(newValue)) || Number(newValue) < 0 || Number(newValue) > 10) {
+      return;
+    }
+
     console.log(`Changing cell ${field} for ${id}`)
     setGrades(prevGrades => {
       const updatedGrades = {};
@@ -13,13 +17,15 @@ const ProjectsTable = ({ projects, grades, setGrades }) => {
       }
 
       if (!(id in updatedGrades)) {
-        updatedGrades[id] = {[field]: newValue};
+        if (newValue > 0) {
+          updatedGrades[id] = {[field]: +newValue};
+        }
       } else {
         updatedGrades[id] = prevGrades[id];
         if (!(field in updatedGrades[id])) {
           updatedGrades[id][field] = {};
         }
-        updatedGrades[id][field] = newValue;
+        updatedGrades[id][field] = +newValue;
       }
 
       console.log(updatedGrades)

@@ -73,7 +73,7 @@ const Index = () => {
   return (
     <>
       <div className="flex flex-col min-h-screen bg-gray-900 w-screen">
-        <div className="flex flex-row justify-center pt-16 pb-8">
+        <div className="flex flex-row justify-center pt-16">
           <h2 className="text-blue-300 text-4xl">Login</h2>
         </div>
         <div className="m-auto">

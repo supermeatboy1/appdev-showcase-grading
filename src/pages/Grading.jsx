@@ -34,6 +34,23 @@ const Grading = () => {
       setProjects(data)
   }
 
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = 'Are you sure you want to leave? Your changes may not be saved.';
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
+
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -73,7 +90,7 @@ const Grading = () => {
         </div>
         <div className="m-auto">
           <div className="flex flex-row justify-center">
-            <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} />
+            <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} setHasUnsavedChanges={setHasUnsavedChanges} />
           </div>
           <div className="px-6 pb-10 flex flex-row justify-between">
             <label>

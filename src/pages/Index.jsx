@@ -5,6 +5,7 @@ import Button from '../components/Button.jsx';
 import ErrorDialogModal from "../components/ErrorDialogModal";
 
 import { sha256 } from 'js-sha256';
+import { randomString } from "../Util.js";
 
 import { createClient } from '@supabase/supabase-js'
 
@@ -61,10 +62,24 @@ const Index = () => {
       console.log("Special access!")
     }
 
+    const sessionId = randomString(128);
+    const sessionIdHash = sha256(sessionId);
+
+    const params = await supabase
+      .from('Credentials')
+      .update({ session_id: sessionIdHash })
+      .eq("username", formData.username);
+
+    if (params.error) {
+      setErrorLog("Error updating session id: " + params.error["code"] + " - " + params.error["message"]);
+      return
+    }
+
     navigate('/grading', {
       state: {
-        sessionId: data[0].session_id,
+        sessionId: sessionId,
         userId: data[0].id,
+        username: formData.username,
         fullName: data[0].full_name,
       }
     })

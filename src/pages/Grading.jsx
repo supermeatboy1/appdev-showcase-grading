@@ -4,14 +4,16 @@ import { useState, useEffect, useRef } from 'react'
 
 /*
 import ConfirmationModal from "../components/ConfirmationModal";
-import ErrorDialogModal from "../components/ErrorDialogModal";
 import LoadingModal from "../components/LoadingModal";
-import DialogModal from "../components/DialogModal";
 */
-import Button from '../components/Button.jsx';
+import Button from '../components/Button';
+import DialogModal from "../components/DialogModal";
+import ErrorDialogModal from "../components/ErrorDialogModal";
 import ProjectsTable from "../components/ProjectsTable";
 
-import { createClient } from '@supabase/supabase-js'
+import { sha256 } from 'js-sha256';
+import { createClient } from '@supabase/supabase-js';
+import { criteria } from "../Const.js";
 
 const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env.VITE_NEXT_PUBLIC_SUPABASE_ANON_KEY)
 
@@ -19,10 +21,32 @@ const Grading = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [projects, setProjects] = useState([]);
+  const [errorLog, setErrorLog] = useState(null);
   const [grades, setGrades] = useState({});
   const [scoresConfirmed, setScoresConfirmed] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState(null);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [sessionConfirmed, setSessionConfirmed] = useState(null);
+  const [editable, setEditable] = useState(true);
+  const [successModal, setSuccessModal] = useState(false);
   const categoryId = 2;
+
+  const confirmSession = async () => {
+    const { data, error } = await supabase
+      .from('Credentials')
+      .select("*")
+      .eq("username", location.state?.username)
+    if (error) {
+      console.log(error["code"] + " - " + error["message"]);
+      return
+    }
+    console.log(data)
+    if (data.length == 1 && data[0].session_id == sha256(location.state?.sessionId)) {
+      console.log("Session confirmed!");
+      setSessionConfirmed(true);
+      fetchProjects();
+    }
+  }
 
   const fetchProjects = async (teamId) => {
       const { data, error } = await supabase
@@ -33,8 +57,6 @@ const Grading = () => {
       console.log(data)
       setProjects(data)
   }
-
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     const handleBeforeUnload = (event) => {
@@ -52,62 +74,106 @@ const Grading = () => {
   }, [hasUnsavedChanges]);
 
   useEffect(() => {
-    fetchProjects();
+    confirmSession();
   }, []);
 
-  /*
   const recordGrade = async (e) => {
-    e.preventDefault();
-    console.log(inputs);
+    if (!scoresConfirmed || !editable) {
+      return
+    }
 
     console.log("Recording grades...");
 
+    let inputData = [];
+
+    for (const [id, grade] of Object.entries(grades)) {
+      criteria.forEach((criteria, index) => {
+        if (!(criteria.dbName in grade)) {
+          grade[criteria.dbName] = 0;
+        }
+      });
+      inputData.push({
+        project_id: id, 
+        panelist_id: location.state?.userId,
+        grade
+      });
+    }
+
+    if (inputData.length == 0) {
+      setErrorLog("You haven't recorded any grades yet!");
+      return
+    }
+
+    console.log("Uploading grades...");
+    console.log(inputData);
+
     const { error } = await supabase
       .from('Grading')
-      .insert({ team_id: 1, project_type: "Mobile App",
-                grade: {
-                  design: +inputs.design,
-                  usability: +inputs.usability,
-                  functionality: +inputs.functionality,
-                  installation: +inputs.installation,
-                }
-              });
+      .insert(inputData);
 
     if (error) {
-      console.log(error["code"] + " - " + error["message"]);
-    } else {
-      console.log("Grading successful!");
+      setErrorLog(error["code"] + " - " + error["message"]);
+      return;
     }
+
+    setSuccessModal(true);
+    setHasUnsavedChanges(false);
   }
-  */
 
   return (
     <>
       <div className="flex flex-col min-h-screen bg-gray-900 w-min">
-        <div className="p-8 justify-items-center w-screen">
-          <h2 className="text-blue-300 text-2xl pb-4">Welcome, {location.state?.fullName}!</h2>
-          <Button type="button" onClick={() => navigate("/score_view")}>View All Scores</Button>
-        </div>
-        <div className="m-auto">
-          <div className="flex flex-row justify-center">
-            <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} setHasUnsavedChanges={setHasUnsavedChanges} />
+        { sessionConfirmed &&
+          <>
+          <div className="p-8 justify-items-center w-screen">
+            <h2 className="text-blue-300 text-2xl pb-4">Welcome, {location.state?.fullName}!</h2>
+            { !editable && <h2 className="text-blue-300 text-1xl pb-4">Tabulation submitted.</h2> }
+            <Button type="button" onClick={() => navigate("/score_view")}>View All Scores</Button>
           </div>
-          <div className="px-6 pb-10 flex flex-row justify-between">
-            <label>
-              <input type="checkbox" value={scoresConfirmed} onChange={(e) => setScoresConfirmed(e.target.checked)} />
-              <span className="text-blue-200 pl-3">I confirm that my tabulation of scores is final.</span>
-            </label>
-            <Button
-              type="button"
-              color={!scoresConfirmed ? "bg-gray-500/90" : null}
-              textColor={!scoresConfirmed ? "text-gray-400/80" : null}
-              onClick={() => {}}
-            >
-              Confirm
-            </Button>
+          <div className="m-auto">
+            <div className="flex flex-row overflow-auto max-w-screen">
+              <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} setHasUnsavedChanges={setHasUnsavedChanges} editable={editable} />
+            </div>
+            <div className="px-6 pb-10 flex flex-row justify-between">
+              <label>
+                <input type="checkbox" value={scoresConfirmed} onChange={(e) => {
+                  if (editable) {
+                    setScoresConfirmed(e.target.checked)}
+                  }
+                } />
+                <span className="text-blue-200 pl-3">I confirm that my tabulation of scores is final.</span>
+              </label>
+              <Button
+                type="button"
+                color={!scoresConfirmed || !editable ? "bg-gray-500/90" : null}
+                textColor={!scoresConfirmed || !editable ? "text-gray-400/80" : null}
+                onClick={recordGrade}
+              >
+                Confirm
+              </Button>
+            </div>
           </div>
-        </div>
+          </>
+        }
       </div>
+      {errorLog != null && (
+          <ErrorDialogModal
+              buttonText='Ok'
+              message='An error occured. Please check the error message below.' 
+              errorLog={errorLog}
+              onClick={() => setErrorLog(null) }
+          />
+      )}
+      {successModal && (
+          <DialogModal
+              buttonText='Ok'
+              message='Scores recorded.' 
+              onClick={() => {
+                setEditable(false);
+                setSuccessModal(false);
+              }}
+          />
+      )}
     </>
   )
 }

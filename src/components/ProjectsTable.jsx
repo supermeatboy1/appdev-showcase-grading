@@ -1,6 +1,7 @@
 import EditableCell from "../components/EditableCell";
+import { criteria } from "../Const.js";
 
-const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges }) => {
+const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, editable }) => {
   const handleCellSave = (id, field, newValue) => {
     if (isNaN(Number(newValue)) || Number(newValue) < 0 || Number(newValue) > 10) {
       return;
@@ -31,14 +32,6 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges }) =>
       return updatedGrades;
     });
   };
-
-  const criteria = [
-    { dbName: "clarityOfPurpose", properName: "Clarity of Purpose" },
-    { dbName: "relevanceAndImpact", properName: "Relevance and Impact" },
-    { dbName: "deliveryAndConfidence", properName: "Delivery and Confidence" },
-    { dbName: "audienceEngagement", properName: "Audience Engagement" },
-    { dbName: "marketValue", properName: "Market Value" },
-  ];
 
   return (
     <div className="p-4 bg-gray-900 text-gray-100">
@@ -71,6 +64,7 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges }) =>
                           <EditableCell
                             value={grade}
                             onSave={(newValue) => handleCellSave(entry.id, [criterion.dbName], newValue)}
+                            editable={editable}
                           />
                         </td>
                       )

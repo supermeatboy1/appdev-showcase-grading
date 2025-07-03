@@ -78,6 +78,9 @@ const Index = () => {
   return (
     <>
       <div className="flex flex-col min-h-screen bg-gray-900">
+        <div className="p-8 justify-items-center">
+          <Button type="button" onClick={() => navigate("/score_view")}>View All Scores</Button>
+        </div>
         <div className="m-auto">
           <div className="flex flex-row justify-center pt-16 pb-8">
             <h2 className="text-blue-300 text-4xl">Select Team:</h2>

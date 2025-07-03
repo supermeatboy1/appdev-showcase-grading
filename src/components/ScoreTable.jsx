@@ -19,7 +19,7 @@ const ScoreTable = ({ grades }) => {
             const grade = entry.grade
             return (
               <tr key={index} className="bg-gray-800 border-b border-gray-700">
-                <td className="px-4 py-2 border border-gray-700 text-center">{"Team Upstagers"}</td>
+                <td className="px-4 py-2 border border-gray-700 text-center">{entry.team_id}</td>
                 <td className="px-4 py-2 border border-gray-700 text-center">{grade.design}</td>
                 <td className="px-4 py-2 border border-gray-700 text-center">{grade.usability}</td>
                 <td className="px-4 py-2 border border-gray-700 text-center">{grade.functionality}</td>

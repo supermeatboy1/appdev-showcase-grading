@@ -4,7 +4,7 @@ const EditableCell = ({ value, onSave, editable }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [inputValue, setInputValue] = useState(value);
 
-  const handleDoubleClick = () => {
+  const onClick = () => {
     if (!editable) {
       return;
     }
@@ -24,7 +24,7 @@ const EditableCell = ({ value, onSave, editable }) => {
   return isEditing && editable ? (
     <input className={"w-full px-4 py-2"} type="text" value={inputValue} onKeyDown={handleKeyDown} onChange={handleChange} onBlur={handleBlur} autoFocus />
   ) : (
-	  <div className={"w-full px-4 py-2"} onDoubleClick={handleDoubleClick} style={editable ? {cursor:'pointer'} : {}}>
+	  <div className={"w-full px-4 py-2"} onClick={onClick} style={editable ? {cursor:'pointer'} : {}}>
 	    <span className={"w-full"}>{value}</span>
 	  </div>
   );

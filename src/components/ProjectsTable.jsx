@@ -1,7 +1,8 @@
 import EditableCell from "../components/EditableCell";
-import { criteria } from "../Const.js";
+import { criteria, generalAwards, specialAwards } from "../Const.js";
+import Button from '../components/Button';
 
-const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, editable }) => {
+const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, editable, awards, setAwards, categoryId }) => {
   const handleCellSave = (id, field, newValue) => {
     if (isNaN(Number(newValue)) || Number(newValue) < 0 || Number(newValue) > 10) {
       return;
@@ -33,6 +34,20 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, edit
     });
   };
 
+  const handleChangeAward = (awardDbName, projectId) => {
+    if (!editable) {
+      return
+    }
+    
+    console.log(`New award: ${awardDbName} - ${projectId}`)
+    setAwards({
+      ...awards,
+      [awardDbName]: projectId,
+    });
+  }
+
+  const specificAwards = specialAwards[categoryId];
+
   return (
     <div className="p-4 bg-gray-900 text-gray-100">
       <table className="min-w-full border border-gray-700 text-sm text-left bg-gray-800 rounded-lg overflow-hidden">
@@ -45,11 +60,16 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, edit
                 <th className="px-4 py-2 border border-gray-700">{criterion.properName}</th>
               ))
             }
+            <th className="px-4 py-2 border border-gray-700 bg-amber-600 text-gray-900">Project Title</th>
+            <th className="px-4 py-2 border border-gray-700 bg-amber-400 text-gray-900" colspan={specificAwards.length}>Special Awards</th>
+            <th className="px-4 py-2 border border-gray-700 bg-green-600 text-gray-900">Project Title</th>
+            <th className="px-4 py-2 border border-gray-700 bg-green-400 text-gray-900" colspan={specificAwards.length}>General Awards</th>
           </tr>
         </thead>
         <tbody>
           {
             projects.map((entry, index) => {
+              const generalAwardBg = entry.id in grades ? (Object.keys(grades[entry.id]).length == criteria.length ? "bg-lime-800" : "bg-yellow-800") : index % 2 == 0 ? "bg-gray-900" : "bg-gray-800";
               return (
                 <tr key={index} 
                   className={`${entry.id in grades ? (Object.keys(grades[entry.id]).length == criteria.length ? "bg-lime-700" : "bg-yellow-700") : index % 2 == 0 ? "bg-gray-800" : "bg-gray-700"} order-b border-gray-700`}
@@ -66,6 +86,46 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, edit
                             onSave={(newValue) => handleCellSave(entry.id, [criterion.dbName], newValue)}
                             editable={editable}
                           />
+                        </td>
+                      )
+                    })
+                  }
+                  <td className="px-4 py-2 border border-gray-700 text-center">{entry.title}</td>
+                  {
+                    specificAwards.map((award, _index) => {
+                      let awardSelected = awards[award.dbName] ? awards[award.dbName] == entry.id : false
+                      return (
+                        <td className={`border border-gray-700 h-full p-0 ${generalAwardBg}`}>
+                          <div className="px-4 py-2 flex items-center">
+                          <Button
+                            type="button"
+                            color={awardSelected ? "bg-lime-500" : "bg-gray-500/90"}
+                            textColor={awardSelected ? "text-stone-900" : "text-gray-300"}
+                            onClick={() => handleChangeAward(award.dbName, entry.id)}
+                          >
+                            {award.properName}
+                          </Button>
+                          </div>
+                        </td>
+                      )
+                    })
+                  }
+                  <td className="px-4 py-2 border border-gray-700 text-center">{entry.title}</td>
+                  {
+                    generalAwards.map((award, _index) => {
+                      let awardSelected = awards[award.dbName] ? awards[award.dbName] == entry.id : false
+                      return (
+                        <td className={`border border-gray-700 h-full p-0 ${generalAwardBg}`}>
+                          <div className="px-4 py-2 flex items-center">
+                          <Button
+                            type="button"
+                            color={awardSelected ? "bg-lime-500" : "bg-gray-500/90"}
+                            textColor={awardSelected ? "text-stone-900" : "text-gray-300"}
+                            onClick={() => handleChangeAward(award.dbName, entry.id)}
+                          >
+                            {award.properName}
+                          </Button>
+                          </div>
                         </td>
                       )
                     })

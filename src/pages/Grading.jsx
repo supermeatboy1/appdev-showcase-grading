@@ -23,13 +23,14 @@ const Grading = () => {
   const [projects, setProjects] = useState([]);
   const [errorLog, setErrorLog] = useState(null);
   const [grades, setGrades] = useState({});
+  const [awards, setAwards] = useState({});
   const [scoresConfirmed, setScoresConfirmed] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState(null);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [sessionConfirmed, setSessionConfirmed] = useState(null);
   const [editable, setEditable] = useState(true);
   const [successModal, setSuccessModal] = useState(false);
-  const categoryId = 2;
+  const categoryId = 1;
 
   const confirmSession = async () => {
     const { data, error } = await supabase
@@ -52,7 +53,7 @@ const Grading = () => {
       const { data, error } = await supabase
         .from('Projects')
         .select("*")
-        .eq("category", 2)
+        .eq("category", categoryId)
       console.log("Projects data:")
       console.log(data)
       setProjects(data)
@@ -86,34 +87,61 @@ const Grading = () => {
 
     let inputData = [];
 
-    for (const [id, grade] of Object.entries(grades)) {
-      criteria.forEach((criteria, index) => {
-        if (!(criteria.dbName in grade)) {
-          grade[criteria.dbName] = 0;
-        }
-      });
-      inputData.push({
-        project_id: id, 
-        panelist_id: location.state?.userId,
-        grade
-      });
+    if (Object.entries(grades).length > 0) {
+
+      for (const [id, grade] of Object.entries(grades)) {
+        criteria.forEach((criteria, index) => {
+          if (!(criteria.dbName in grade)) {
+            grade[criteria.dbName] = 0;
+          }
+        });
+        inputData.push({
+          project_id: id, 
+          panelist_id: location.state?.userId,
+          grade
+        });
+      }
+
+      if (inputData.length == 0) {
+        setErrorLog("You haven't recorded any grades yet!");
+        return
+      }
+
+      console.log("Uploading grades...");
+      console.log(inputData);
+
+      const { error } = await supabase
+        .from('Grading')
+        .insert(inputData);
+
+      if (error) {
+        setErrorLog(error["code"] + " - " + error["message"]);
+        return;
+      }
     }
 
-    if (inputData.length == 0) {
-      setErrorLog("You haven't recorded any grades yet!");
-      return
-    }
+    inputData = [];
 
-    console.log("Uploading grades...");
-    console.log(inputData);
+    if (Object.entries(awards).length > 0) {
+      for (const [dbName, projectId] of Object.entries(awards)) {
+        inputData.push({
+          project_id: projectId, 
+          awarded_by: location.state?.userId,
+          award_name: dbName,
+        });
+      }
 
-    const { error } = await supabase
-      .from('Grading')
-      .insert(inputData);
+      console.log("Uploading awards...");
+      console.log(inputData);
 
-    if (error) {
-      setErrorLog(error["code"] + " - " + error["message"]);
-      return;
+      const { error } = await supabase
+        .from('Awards')
+        .insert(inputData);
+
+      if (error) {
+        setErrorLog(error["code"] + " - " + error["message"]);
+        return;
+      }
     }
 
     setSuccessModal(true);
@@ -132,16 +160,24 @@ const Grading = () => {
           </div>
           <div className="m-auto">
             <div className="flex flex-row overflow-auto max-w-screen">
-              <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} setHasUnsavedChanges={setHasUnsavedChanges} editable={editable} />
+              <ProjectsTable
+                projects={projects}
+                grades={grades}
+                setGrades={setGrades}
+                setHasUnsavedChanges={setHasUnsavedChanges}
+                editable={editable}
+                categoryId={categoryId}
+                awards={awards}
+                setAwards={setAwards} />
             </div>
-            <div className="px-6 pb-10 flex flex-row justify-between">
+            <div className="px-6 pt-3 pb-30 flex flex-row justify-between">
               <label>
                 <input type="checkbox" value={scoresConfirmed} onChange={(e) => {
                   if (editable) {
                     setScoresConfirmed(e.target.checked)}
                   }
                 } />
-                <span className="text-blue-200 pl-3">I confirm that my tabulation of scores is final.</span>
+                <span className="text-blue-200 px-3">I confirm that my tabulation of scores is final.</span>
               </label>
               <Button
                 type="button"

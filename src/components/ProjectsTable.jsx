@@ -10,8 +10,6 @@ const ProjectsTable = ({ projects, grades, setGrades }) => {
     setGrades(prevGrades => {
       const updatedGrades = {};
 
-      console.log(id in prevGrades);
-
       for (const [id, grade] of Object.entries(prevGrades)) {
         updatedGrades[id] = grade
       }

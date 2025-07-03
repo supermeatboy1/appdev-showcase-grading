@@ -20,6 +20,7 @@ const Grading = () => {
   const location = useLocation();
   const [projects, setProjects] = useState([]);
   const [grades, setGrades] = useState({});
+  const [scoresConfirmed, setScoresConfirmed] = useState(false);
   const [currentTeamId, setCurrentTeamId] = useState(null);
   const categoryId = 2;
 
@@ -73,6 +74,20 @@ const Grading = () => {
         <div className="m-auto">
           <div className="flex flex-row justify-center">
             <ProjectsTable projects={projects} grades={grades} setGrades={setGrades} />
+          </div>
+          <div className="px-6 pb-10 flex flex-row justify-between">
+            <label>
+              <input type="checkbox" value={scoresConfirmed} onChange={(e) => setScoresConfirmed(e.target.checked)} />
+              <span className="text-blue-200 pl-3">I confirm that my tabulation of scores is final.</span>
+            </label>
+            <Button
+              type="button"
+              color={!scoresConfirmed ? "bg-gray-500/90" : null}
+              textColor={!scoresConfirmed ? "text-gray-400/80" : null}
+              onClick={() => {}}
+            >
+              Confirm
+            </Button>
           </div>
         </div>
       </div>

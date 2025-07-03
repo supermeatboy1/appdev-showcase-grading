@@ -14,7 +14,7 @@ const EditableCell = ({ value, onSave }) => {
   return isEditing ? (
     <input className={"w-full px-4 py-2"} type="text" value={inputValue} onChange={handleChange} onBlur={handleBlur} autoFocus />
   ) : (
-	  <div className={"w-full px-4 py-2"} onDoubleClick={handleDoubleClick}>
+	  <div className={"w-full px-4 py-2"} onDoubleClick={handleDoubleClick} style={{cursor:'pointer'}}>
 	    <span className={"w-full"}>{value}</span>
 	  </div>
   );

@@ -64,7 +64,7 @@ const Index = () => {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen bg-gray-900">
+      <div className="flex flex-col min-h-screen bg-gray-900 min-w-screen">
         <div className="p-8 justify-items-center">
           <Button type="button" onClick={() => navigate("/score_view")}>View All Scores</Button>
         </div>

@@ -10,31 +10,53 @@ const supabase = createClient(import.meta.env.VITE_SUPABASE_URL, import.meta.env
 
 const ScoreView = () => {
   const navigate = useNavigate();
+  const [projects, setProjects] = useState([]);
   const [grades, setGrades] = useState([]);
 
-  const fetchGrades = async () => {
-    const { data, error } = await supabase
+  const fetchData = async () => {
+    let projectsData = [];
+    {
+      let { data, error } = await supabase
+        .from('Projects')
+        .select("*")
+      for (const { id, category, title } of data) {
+        projectsData[id] = { category, title, grades: [] };
+      }
+    }
+
+    let { data, error } = await supabase
       .from('Grading')
-      .select("grade")
-    console.log("Grades data:")
-    console.log(data)
-    setGrades(data)
+      .select("*");
+
+    data.sort((a, b) => a.panelist_id - b.panelist_id);
+
+    for (const { project_id, panelist_id, grade } of data) {
+      projectsData[project_id].grades.push(grade);
+    }
+
+    console.log("Full project data with grades:")
+
+    for (const [id, project] of Object.entries(projectsData)) {
+      console.log(project)
+    }
+
+    setProjects(projectsData)
   }
 
   useEffect(() => {
-    fetchGrades();
+    fetchData();
   }, []);
 
   return (
     <>
-      <div className="flex flex-col min-h-screen bg-gray-900">
+      <div className="flex flex-col min-h-screen bg-gray-900 w-min">
         <div className="flex flex-row justify-center pt-16 pb-8">
-          <h2 className="text-blue-300 text-4xl">Average Grades per Team:</h2>
+          <h2 className="text-blue-300 text-2xl">Project Rankings:</h2>
         </div>
         <div className="p-8 justify-items-center">
           <Button type="button" onClick={() => navigate("/")}>Go Back</Button>
         </div>
-        <ScoreTable grades={grades} />
+        <ScoreTable projects={projects} />
       </div>
     </>
   )

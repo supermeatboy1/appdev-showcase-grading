@@ -1,29 +1,52 @@
-const ScoreTable = ({ grades }) => {
-  const sumOfCriterion = (criterionName) => {
-    return Math.round(grades.reduce((accumulator, entry) => accumulator + entry.grade[criterionName], 0) / grades.length, 2);
-  }
+import { criteria } from "../Const.js";
+
+const ScoreTable = ({ projects }) => {
   return (
     <div className="p-4 bg-gray-900 text-gray-100">
       <table className="min-w-full border border-gray-700 text-sm text-left bg-gray-800 rounded-lg overflow-hidden">
+        <colgroup>
+          <col span={2} />
+          <col className="bg-gray-700" span={5} />
+          <col className="bg-gray-600" span={5} />
+        </colgroup>
         <thead className="bg-gray-700 text-gray-200">
           <tr>
-            <th className="px-4 py-2 border border-gray-700">Team Name</th>
-            <th className="px-4 py-2 border border-gray-700">Design</th>
-            <th className="px-4 py-2 border border-gray-700">Usability</th>
-            <th className="px-4 py-2 border border-gray-700">Functionality</th>
-            <th className="px-4 py-2 border border-gray-700">Ease of Installation</th>
+            <th colSpan={2}></th>
+            <th className="px-4 py-2 border border-gray-700 text-center" colSpan={5}>Panelist 1</th>
+            <th className="px-4 py-2 border border-gray-700 text-center" colSpan={5}>Panelist 2</th>
+          </tr>
+        </thead>
+        <thead className="bg-gray-700 text-gray-200">
+          <tr>
+            <th className="px-4 py-2 border border-gray-700">ID</th>
+            <th className="px-4 py-2 border border-gray-700">Project Title</th>
+            {
+              criteria.map((criterion, _index) => (
+                <th className="px-4 py-2 border border-gray-700">{criterion.properName}</th>
+              ))
+            }
+            {
+              criteria.map((criterion, _index) => (
+                <th className="px-4 py-2 border border-gray-700">{criterion.properName}</th>
+              ))
+            }
           </tr>
         </thead>
         <tbody>
-          {grades.map((entry, index) => {
-            const grade = entry.grade
+          {projects.map((project, index) => {
             return (
-              <tr key={index} className="bg-gray-800 border-b border-gray-700">
-                <td className="px-4 py-2 border border-gray-700 text-center">{entry.team_id}</td>
-                <td className="px-4 py-2 border border-gray-700 text-center">{grade.design}</td>
-                <td className="px-4 py-2 border border-gray-700 text-center">{grade.usability}</td>
-                <td className="px-4 py-2 border border-gray-700 text-center">{grade.functionality}</td>
-                <td className="px-4 py-2 border border-gray-700 text-center">{grade.installation}</td>
+              <tr key={index} className="border-b border-gray-700">
+                <td className="px-4 py-2 border border-gray-700 text-center">{index}</td>
+                <td className="px-4 py-2 border border-gray-700 text-center">{project.title}</td>
+                {
+                  project.grades.map((criteria, _i) => 
+                    Object.entries(criteria).map((_i, point) => {
+                      return (
+                        <td className="px-4 py-2 border border-gray-700 text-center">{point}</td>
+                      )}
+                    )
+                  )
+                }
               </tr>
              )
             }

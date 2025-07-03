@@ -61,9 +61,9 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, edit
               ))
             }
             <th className="px-4 py-2 border border-gray-700 bg-amber-600 text-gray-900">Project Title</th>
-            <th className="px-4 py-2 border border-gray-700 bg-amber-400 text-gray-900" colspan={specificAwards.length}>Special Awards</th>
+            <th className="px-4 py-2 border border-gray-700 bg-amber-400 text-gray-900" colSpan={specificAwards.length}>Special Awards</th>
             <th className="px-4 py-2 border border-gray-700 bg-green-600 text-gray-900">Project Title</th>
-            <th className="px-4 py-2 border border-gray-700 bg-green-400 text-gray-900" colspan={specificAwards.length}>General Awards</th>
+            <th className="px-4 py-2 border border-gray-700 bg-green-400 text-gray-900" colSpan={specificAwards.length}>General Awards</th>
           </tr>
         </thead>
         <tbody>

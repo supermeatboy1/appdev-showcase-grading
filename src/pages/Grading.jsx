@@ -32,8 +32,33 @@ const Grading = () => {
   const [successModal, setSuccessModal] = useState(false);
   const categoryId = 1;
 
+  const loadPreviousTabulations = async (gradingData) => {
+    let newGrades = {};
+    for (var i = gradingData.length - 1; i >= 0; i--) {
+      const dbGrade = gradingData[i];
+      newGrades[dbGrade.project_id] = dbGrade.grade;
+    }
+    setGrades(newGrades);
+
+    let { data, error } = await supabase
+      .from('Awards')
+      .select("*")
+      .eq("awarded_by", location.state?.userId)
+    if (error) {
+      console.log(error["code"] + " - " + error["message"]);
+      return
+    }
+
+    let newAwards = {};
+    for (var i = data.length - 1; i >= 0; i--) {
+      const dbAward = data[i];
+      newAwards[dbAward.award_name] = dbAward.project_id;
+    }
+    setAwards(newAwards)
+  }
+
   const confirmSession = async () => {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('Credentials')
       .select("*")
       .eq("username", location.state?.username)
@@ -41,8 +66,21 @@ const Grading = () => {
       console.log(error["code"] + " - " + error["message"]);
       return
     }
-    console.log(data)
     if (data.length == 1 && data[0].session_id == sha256(location.state?.sessionId)) {
+      let { data, error } = await supabase
+        .from('Grading')
+        .select("*")
+        .eq("panelist_id", location.state?.userId)
+      if (error) {
+        console.log(error["code"] + " - " + error["message"]);
+        return
+      }
+      if (data.length > 0) {
+        console.log("This user has already tabulated.");
+        setEditable(false);
+        setScoresConfirmed(true);
+        loadPreviousTabulations(data);
+      }
       console.log("Session confirmed!");
       setSessionConfirmed(true);
       fetchProjects();

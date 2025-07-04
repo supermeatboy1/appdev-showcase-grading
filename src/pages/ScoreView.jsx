@@ -17,10 +17,10 @@ const ScoreView = () => {
     let projectsData = [];
     {
       let { data, error } = await supabase
-        .from('Projects')
+        .from('ProjectsWithCategories')
         .select("*")
-      for (const { id, category, title } of data) {
-        projectsData[id] = { category, title, grades: [] };
+      for (const { id, category, title, category_name } of data) {
+        projectsData[id] = { category, title, category_name, grades: [] };
       }
     }
 
@@ -51,7 +51,7 @@ const ScoreView = () => {
     <>
       <div className="flex flex-col min-h-screen bg-gray-900 w-min">
         <div className="flex flex-row justify-center pt-16 pb-8">
-          <h2 className="text-blue-300 text-2xl">Project Rankings:</h2>
+          <h2 className="text-blue-300 text-2xl">Projects Score Table:</h2>
         </div>
         <div className="p-8 justify-items-center">
           <Button type="button" onClick={() => navigate("/")}>Go Back</Button>

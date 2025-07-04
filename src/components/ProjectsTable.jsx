@@ -60,10 +60,10 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, edit
                 <th className="px-4 py-2 border border-gray-700">{criterion.properName}</th>
               ))
             }
-            <th className="px-4 py-2 border border-gray-700 bg-amber-600 text-gray-900">Project Title</th>
-            <th className="px-4 py-2 border border-gray-700 bg-amber-400 text-gray-900" colSpan={specificAwards.length}>Special Awards</th>
+            { specificAwards.length > 0 && <><th className="px-4 py-2 border border-gray-700 bg-amber-600 text-gray-900">Project Title</th>
+            <th className="px-4 py-2 border border-gray-700 bg-amber-400 text-gray-900" colSpan={specificAwards.length}>Special Awards</th></> }
             <th className="px-4 py-2 border border-gray-700 bg-green-600 text-gray-900">Project Title</th>
-            <th className="px-4 py-2 border border-gray-700 bg-green-400 text-gray-900" colSpan={specificAwards.length}>General Awards</th>
+            <th className="px-4 py-2 border border-gray-700 bg-green-400 text-gray-900" colSpan={generalAwards.length}>General Awards</th>
           </tr>
         </thead>
         <tbody>
@@ -90,7 +90,7 @@ const ProjectsTable = ({ projects, grades, setGrades, setHasUnsavedChanges, edit
                       )
                     })
                   }
-                  <td className="px-4 py-2 border border-gray-700 text-center">{entry.title}</td>
+                  { specificAwards.length > 0 && <td className="px-4 py-2 border border-gray-700 text-center">{entry.title}</td> }
                   {
                     specificAwards.map((award, _index) => {
                       let awardSelected = awards[award.dbName] ? awards[award.dbName] == entry.id : false

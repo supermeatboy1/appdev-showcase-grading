@@ -30,7 +30,7 @@ const Grading = () => {
   const [sessionConfirmed, setSessionConfirmed] = useState(null);
   const [editable, setEditable] = useState(true);
   const [successModal, setSuccessModal] = useState(false);
-  const categoryId = 1;
+  const categoryId = location.state?.categoryId || 0;
 
   const loadPreviousTabulations = async (gradingData) => {
     let newGrades = {};

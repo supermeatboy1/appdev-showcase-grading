@@ -52,6 +52,7 @@ const Index = () => {
     }
 
     const inputPasswordHash = sha256(`${formData.password}-${data[0].salt}`)
+    console.log(inputPasswordHash);
 
     if (inputPasswordHash != data[0].password_hash) {
       setErrorLog("Invalid credentials!");
@@ -79,6 +80,7 @@ const Index = () => {
       state: {
         sessionId: sessionId,
         userId: data[0].id,
+        categoryId: data[0].category_id,
         username: formData.username,
         fullName: data[0].full_name,
       }

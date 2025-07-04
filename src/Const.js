@@ -32,4 +32,5 @@ export const specialAwards = {
     { dbName: "prodImpact", properName: "Productivity Impact Award" },
     { dbName: "mostMarketReady", properName: "Most Market-Ready Talk" },
   ],
+  "5" : [],
 };

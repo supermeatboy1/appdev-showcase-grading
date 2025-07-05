@@ -42,9 +42,9 @@ const ScoreTable = ({ projects }) => {
                 <td className="px-4 py-2 border border-gray-700 text-center">{project.category_name}</td>
                 {
                   project.grades.map((criteria, _i) => 
-                    Object.entries(criteria).map((_i, point) => {
+                    Object.entries(criteria).map((point, _i) => {
                       return (
-                        <td className="px-4 py-2 border border-gray-700 text-center">{point}</td>
+                        <td className="px-4 py-2 border border-gray-700 text-center">{`${point[1]}`}</td>
                       )}
                     )
                   )

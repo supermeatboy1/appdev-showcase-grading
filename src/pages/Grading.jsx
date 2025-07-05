@@ -226,6 +226,19 @@ const Grading = () => {
                 Confirm
               </Button>
             </div>
+
+        <a 
+                href={`data:text/json;charset=utf-8,${encodeURIComponent(
+                  JSON.stringify({
+                    "grades": grades,
+                    "awards": awards,
+                  })
+                )}`}
+                download={`scores-${location.state?.username}.json`}
+                className={"flex justify-center items-center gap-2 text-white bg-blue-400/70 hover:bg-orange-300/40" +
+                " font-bold rounded-lg text-sm px-5 py-2.5 me-2 mb-2 cursor-pointer"}>
+            Download and Backup Scores
+        </a>
           </div>
           </>
         }
